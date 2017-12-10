@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python 终端</title>
+    <link rel="stylesheet" href="./index.css">
+    <script src="socket.io/socket.io.js"></script>
+    <script src="./jquery.min.js"></script>
+</head>
+<body>
+<ul id="terminal">
+</ul>
+<script>
+    var socket = io();
+    socket.emit('init', 'session init');
+    socket.on('reply', function(msgs) {
+        $('#terminal').find('li input').each(function () {
+            $(this).after('<span>' + $(this).val() + '</span>').remove();
+        });
+        if(msgs) {
+            msgs = msgs.split('\n');
+            $.each(msgs, function (index, msg) {
+                var li$ = $('<li></li>').text(msg);
+                if(msg.trim() == '>>>' || index == (msgs.length - 1)) {
+                    li$.append($('<input type="text"/>').focus().keypress(function(e) {
+                        if(e.which == 13) {
+                            socket.emit('command', $(this).val());
+                        }
+                    }));
+                }
+                li$.appendTo($('#terminal'));
+            });
+            $('#terminal').find('li input').focus();
+        } else {
+            $('#terminal').append('<li>Goodbye!</li>');
+        }
+    });
+    $(window).unload(function () {
+        socket.emit('close', 'session close');
+    });
+    $(document).click(function () {
+        $('#terminal').find('li:last-child input').focus();
+    });
+</script>
+</body>
+</html>
