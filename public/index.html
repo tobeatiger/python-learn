@@ -8,6 +8,10 @@
     <script src="./jquery.min.js"></script>
 </head>
 <body>
+<aside id="program">
+    <textarea id="txt_prg">print "Hello Python"</textarea>
+    <button id="btn_run">Run</button>
+</aside>
 <ul id="terminal">
 </ul>
 <script>
@@ -35,11 +39,17 @@
             $('#terminal').append('<li>Goodbye!</li>');
         }
     });
+
     $(window).unload(function () {
         socket.emit('close', 'session close');
     });
-    $(document).click(function () {
+    $('#terminal').click(function () {
         $('#terminal').find('li:last-child input').focus();
+    });
+
+    $('#btn_run').click(function () {
+        var pg = $('#txt_prg').val();
+        socket.emit('program', pg);
     });
 </script>
 </body>

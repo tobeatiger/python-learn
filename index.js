@@ -17,10 +17,16 @@ function PythonDialog () {
     this.childProcess.stdout.setEncoding('utf8');
     this.childProcess.stderr.setEncoding('utf8');
 
+    this.commands = [];
     this.reply = '';
     var ctl = this;
     this.childProcess.stdout.on('data', function(data) {
         ctl.reply += data;
+        console.log(data);
+        console.log(ctl.commands);
+        if (ctl.commands.length) {
+            ctl.childProcess.stdin.write(ctl.commands.shift()+'\n');
+        }
     });
     this.childProcess.stderr.on('data', function(data) {
         ctl.reply += data;
@@ -33,6 +39,15 @@ function PythonDialog () {
         var rpl = ctl.reply;
         ctl.reply = '';
         return rpl;
+    };
+
+    this.run = function (pg) {
+        if(pg) {
+            ctl.commands = pg.split('\n');
+            if(ctl.commands && ctl.commands.length) {
+                ctl.childProcess.stdin.write(ctl.commands.shift() + '\n');
+            }
+        }
     };
 
     return this;
@@ -56,6 +71,16 @@ io.on('connection', function(socket){
         setTimeout(function() {
             if(socket.__python_dialog) {
                 socket.emit('reply', socket.__python_dialog.getReply());
+            }
+        }, 200);
+    });
+    socket.on('program', function(pg) {
+        socket.__python_dialog.run(pg);
+        setTimeout(function() {
+            if(socket.__python_dialog) {
+                var result = '\n############ RESULT ############\n' +
+                    socket.__python_dialog.getReply();
+                socket.emit('reply', result);
             }
         }, 200);
     });
