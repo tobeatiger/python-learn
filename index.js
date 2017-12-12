@@ -21,15 +21,19 @@ function PythonDialog () {
     this.reply = '';
     var ctl = this;
     this.childProcess.stdout.on('data', function(data) {
-        ctl.reply += data;
-        console.log(data);
-        console.log(ctl.commands);
-        if (ctl.commands.length) {
-            ctl.childProcess.stdin.write(ctl.commands.shift()+'\n');
+        if(ctl.reply.slice(-4).trim() === '>>>') {
+            ctl.reply = ctl.reply.slice(0, -4) + data.replace(new RegExp(' ', 'g'), '&nbsp') + '>>> ';
+        } else {
+            ctl.reply += data.replace(new RegExp(' ', 'g'), '&nbsp');
         }
     });
     this.childProcess.stderr.on('data', function(data) {
-        ctl.reply += data;
+        if((data.trim() !== '>>>' || ctl.commands.length === 0) && data.trim() !== '...') {
+            ctl.reply += data;
+            ctl.commands = [];
+        } else {
+            ctl.childProcess.stdin.write(ctl.commands.shift()+'\n');
+        }
     });
     this.childProcess.on('close', function (code) {
         console.log('Exited with code: ' + code);
@@ -42,9 +46,9 @@ function PythonDialog () {
     };
 
     this.run = function (pg) {
-        if(pg) {
-            ctl.commands = pg.split('\n');
-            if(ctl.commands && ctl.commands.length) {
+        if(pg && pg.length) {
+            ctl.commands = [''].concat(pg.split('\n'));
+            if(ctl.commands.length) {
                 ctl.childProcess.stdin.write(ctl.commands.shift() + '\n');
             }
         }
@@ -57,14 +61,20 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname+'/public/index.html');
 });
 
+function initProcess (socket, cb) {
+    socket.__python_dialog = new PythonDialog();
+    setTimeout(function() {
+        socket.emit('reply', socket.__python_dialog.getReply());
+        if(cb) {
+            cb();
+        }
+    }, 200)
+}
+
 io.on('connection', function(socket){
     console.log('a user connected');
     socket.on('init', function() {
-        socket.__python_dialog = new PythonDialog();
-        //socket.__python_dialog.childProcess.stdin.write(req.body.commands + '\n');
-        setTimeout(function() {
-            socket.emit('reply', socket.__python_dialog.getReply());
-        }, 200);
+        initProcess(socket);
     });
     socket.on('command', function(command) {
         socket.__python_dialog.childProcess.stdin.write(command + '\n');
@@ -75,26 +85,32 @@ io.on('connection', function(socket){
         }, 200);
     });
     socket.on('program', function(pg) {
-        socket.__python_dialog.run(pg);
-        setTimeout(function() {
-            if(socket.__python_dialog) {
-                var result = '\n############ RESULT ############\n' +
-                    socket.__python_dialog.getReply();
-                socket.emit('reply', result);
-            }
-        }, 200);
+        try {
+            socket.__python_dialog.run(pg);
+            __getReply();
+        } catch (e) {
+            console.log(e.message);
+            initProcess(socket, function () {
+                socket.__python_dialog.run(pg);
+                __getReply();
+            });
+        }
+        function __getReply() {
+            setTimeout(function() {
+                socket.emit('reply', '\n######## RESULT ########\n' + socket.__python_dialog.getReply());
+            }, 200);
+        }
     });
-    socket.on('close', function() {
+    socket.on('disconnect', function() {
+        console.log('user disconnected');
         if(socket.__python_dialog && socket.__python_dialog.childProcess) {
             try {
+                socket.__python_dialog.childProcess.stdin.write('\n');
                 socket.__python_dialog.childProcess.stdin.write('exit()\n');
             } catch (e) {
                 console.log(e.message);
             }
         }
-    });
-    socket.on('disconnect', function() {
-        console.log('user disconnected');
     });
 });
 

@@ -63,19 +63,25 @@ ul li {
     font-family: Arial;
     font-size: 17px;
     line-height: 22px;
+    display: flex;
 }
 
 ul li input {
     background-color: black;
     border: none;
-    width: 80%;
-    color: chocolate;
+    /*width: 80%;*/
+    color: cadetblue;
     margin-left: 5px;
     font-size: 17px;
     line-height: 22px;
     outline: none;
     font-family: Arial;
     padding: 0;
+    flex: 1;
+}
+
+input::-ms-clear {
+    display: none;
 }
 
 ul li span {
@@ -83,5 +89,5 @@ ul li span {
     font-size: 17px;
     line-height: 22px;
     font-family: Arial;
-    color: chocolate;
+    color: cadetblue;
 }

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
     <title>Python 终端</title>
     <link rel="stylesheet" href="./index.css">
     <script src="socket.io/socket.io.js"></script>
@@ -16,6 +17,8 @@
 </ul>
 <script>
     var socket = io();
+    var hist = [];
+    var currHistIdx = -1;
     socket.emit('init', 'session init');
     socket.on('reply', function(msgs) {
         $('#terminal').find('li input').each(function () {
@@ -29,6 +32,32 @@
                     li$.append($('<input type="text"/>').focus().keypress(function(e) {
                         if(e.which == 13) {
                             socket.emit('command', $(this).val());
+                            if($(this).val().trim() !== hist[hist.length - 1]) {
+                                hist.push($(this).val());
+                            }
+                            currHistIdx = hist.length;
+                        }
+                    }).keydown(function(e) {
+                        switch (e.which) {
+                            case 38:  // up
+                                e.preventDefault();  // prevent (scroll/move caret)
+                                if(currHistIdx > 0) {
+                                    currHistIdx--;
+                                }
+                                if(hist[currHistIdx]) {
+                                    $(this).val(hist[currHistIdx]);
+                                }
+                                break;
+                            case 40:  // down
+                                e.preventDefault();  // prevent (scroll/move caret)
+                                if(currHistIdx < hist.length - 1) {
+                                    currHistIdx++;
+                                }
+                                if(hist[currHistIdx]) {
+                                    $(this).val(hist[currHistIdx]);
+                                }
+                                break;
+                            default: return;  // exit for other keys
                         }
                     }));
                 }
@@ -40,16 +69,15 @@
         }
     });
 
-    $(window).unload(function () {
-        socket.emit('close', 'session close');
-    });
     $('#terminal').click(function () {
         $('#terminal').find('li:last-child input').focus();
     });
 
     $('#btn_run').click(function () {
         var pg = $('#txt_prg').val();
-        socket.emit('program', pg);
+        if(pg && pg.trim().length > 0) {
+            socket.emit('program', pg);
+        }
     });
 </script>
 </body>
