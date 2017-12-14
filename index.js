@@ -21,14 +21,15 @@ function PythonDialog () {
     this.reply = '';
     var ctl = this;
     this.childProcess.stdout.on('data', function(data) {
+        // data = data.replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
         if(ctl.reply.slice(-4).trim() === '>>>') {
-            ctl.reply = ctl.reply.slice(0, -4) + data.replace(new RegExp(' ', 'g'), '&nbsp') + '>>> ';
+            ctl.reply = ctl.reply.slice(0, -4) + data + '>>> ';
         } else {
-            ctl.reply += data.replace(new RegExp(' ', 'g'), '&nbsp');
+            ctl.reply += data;
         }
     });
     this.childProcess.stderr.on('data', function(data) {
-        if((data.trim() !== '>>>' || ctl.commands.length === 0) && data.trim() !== '...') {
+        if((data.trim() !== '>>>' || ctl.commands.length === 0) && (data.trim() !== '...' || (data.trim() === '...' && ctl.commands.length === 0))) {
             ctl.reply += data;
             ctl.commands = [];
         } else {
@@ -42,7 +43,8 @@ function PythonDialog () {
     this.getReply = function () {
         var rpl = ctl.reply;
         ctl.reply = '';
-        return rpl;
+        return rpl.replace(new RegExp(' ', 'g'), '&nbsp;').replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
+        // return rpl.replace(new RegExp(' ', 'g'), '&nbsp;').replace(new RegExp('<stdin>', 'g'), '&lt;stdin&gt;');
     };
 
     this.run = function (pg) {
@@ -77,6 +79,8 @@ io.on('connection', function(socket){
         initProcess(socket);
     });
     socket.on('command', function(command) {
+        console.log('\n-------- ' + new Date() + ' --------');
+        console.log(command + '\n\n');
         socket.__python_dialog.childProcess.stdin.write(command + '\n');
         setTimeout(function() {
             if(socket.__python_dialog) {
@@ -85,6 +89,8 @@ io.on('connection', function(socket){
         }, 200);
     });
     socket.on('program', function(pg) {
+        console.log('\n======= ' + new Date() + ' =======\n');
+        console.log(pg + '\n');
         try {
             socket.__python_dialog.run(pg);
             __getReply();

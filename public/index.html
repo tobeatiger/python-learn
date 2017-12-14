@@ -10,75 +10,131 @@
 </head>
 <body>
 <aside id="program">
-    <textarea id="txt_prg">print "Hello Python"</textarea>
-    <button id="btn_run">Run</button>
+    <textarea id="txt_prg"></textarea>
+    <button id="btn_run">走起！</button>
 </aside>
 <ul id="terminal">
 </ul>
 <script>
-    var socket = io();
-    var hist = [];
-    var currHistIdx = -1;
-    socket.emit('init', 'session init');
-    socket.on('reply', function(msgs) {
-        $('#terminal').find('li input').each(function () {
-            $(this).after('<span>' + $(this).val() + '</span>').remove();
-        });
-        if(msgs) {
-            msgs = msgs.split('\n');
-            $.each(msgs, function (index, msg) {
-                var li$ = $('<li></li>').text(msg);
-                if(msg.trim() == '>>>' || index == (msgs.length - 1)) {
-                    li$.append($('<input type="text"/>').focus().keypress(function(e) {
-                        if(e.which == 13) {
-                            socket.emit('command', $(this).val());
-                            if($(this).val().trim() !== hist[hist.length - 1]) {
-                                hist.push($(this).val());
-                            }
-                            currHistIdx = hist.length;
-                        }
-                    }).keydown(function(e) {
-                        switch (e.which) {
-                            case 38:  // up
-                                e.preventDefault();  // prevent (scroll/move caret)
-                                if(currHistIdx > 0) {
-                                    currHistIdx--;
-                                }
-                                if(hist[currHistIdx]) {
-                                    $(this).val(hist[currHistIdx]);
-                                }
-                                break;
-                            case 40:  // down
-                                e.preventDefault();  // prevent (scroll/move caret)
-                                if(currHistIdx < hist.length - 1) {
-                                    currHistIdx++;
-                                }
-                                if(hist[currHistIdx]) {
-                                    $(this).val(hist[currHistIdx]);
-                                }
-                                break;
-                            default: return;  // exit for other keys
-                        }
-                    }));
+
+    function preFormat (code) {
+        var rs = [];
+        if(code) {
+            code = code.split('\n');
+            for(var i=0;i<code.length;i++) {
+                var currLine = code[i];
+                var nextLine = code[i+1];
+                
+                // 1. skip all empty lines if in indentation context
+                if(nextLine === undefined      // end of program
+                    || !(
+                        currLine.trim() === ''  // currLine is empty line
+                        &&
+                        (
+                            nextLine.trim() === ''   // nextLine is empty line
+                            || /^\s/.test(nextLine)  // nextLine is indented, in indentation context
+                        )
+                    )
+                ) {
+                    rs.push(currLine);
                 }
-                li$.appendTo($('#terminal'));
+
+                // 2. add empty line after end of indentation
+                if(
+                    /^\s/.test(currLine)           // currLine is indented
+                    && currLine.trim() !== ''      // currLine is not empty spaces
+                    && (
+                        nextLine === undefined                            // no nextLine (end of program)
+                        || (!/^\s/.test(nextLine) && nextLine !== '')     // nextLine is NOT indented
+                    )
+                ) {
+                    rs.push('');
+                }
+            }
+        }
+        return rs.join('\n');
+    }
+
+    $(window).load(function () {
+
+        var socket = io();
+        var hist = [];
+        var currHistIdx = -1;
+        socket.emit('init', 'session init');
+        socket.on('reply', function(msgs) {
+            $('#terminal').find('li input').each(function () {
+                $(this).after($('<span></span>').html(
+                    $(this).val()
+                        .replace(new RegExp(' ', 'g'), '&nbsp;')
+                        .replace(new RegExp('>', 'g'), '&gt;')
+                        .replace(new RegExp('<', 'g'), '&lt;')
+                )).remove();
             });
-            $('#terminal').find('li input').focus();
-        } else {
-            $('#terminal').append('<li>Goodbye!</li>');
-        }
+            if(msgs) {
+                msgs = msgs.split('\n');
+                $.each(msgs, function (index, msg) {
+                    var li$ = $('<li></li>').html(msg);
+                    if(msg.trim() == '>>>' || index == (msgs.length - 1)) {
+                        li$.append($('<input type="text"/>').focus().keypress(function(e) {
+                            if(e.which == 13) {
+                                socket.emit('command', $(this).val());
+                                if($(this).val().trim() !== hist[hist.length - 1]) {
+                                    hist.push($(this).val());
+                                }
+                                currHistIdx = hist.length;
+                            }
+                        }).keydown(function(e) {
+                            switch (e.which) {
+                                case 38:  // up
+                                    e.preventDefault();  // prevent (scroll/move caret)
+                                    if(currHistIdx > 0) {
+                                        currHistIdx--;
+                                    }
+                                    if(hist[currHistIdx]) {
+                                        $(this).val(hist[currHistIdx]);
+                                    }
+                                    break;
+                                case 40:  // down
+                                    e.preventDefault();  // prevent (scroll/move caret)
+                                    if(currHistIdx < hist.length - 1) {
+                                        currHistIdx++;
+                                    }
+                                    if(hist[currHistIdx]) {
+                                        $(this).val(hist[currHistIdx]);
+                                    }
+                                    break;
+                                default: return;  // exit for other keys
+                            }
+                        }));
+                    }
+                    li$.appendTo($('#terminal'));
+                });
+                $('#terminal').find('li input').focus();
+            } else {
+                $('#terminal').append('<li>Goodbye!</li>');
+            }
+        });
+
+        $('#terminal').click(function () {
+            $('#terminal').find('li:last-child input').focus();
+        });
+
+        $('#btn_run').click(function () {
+            var pg = preFormat($('#txt_prg').val());
+            $('#txt_prg').val(pg);
+            if(pg && pg.trim().length > 0) {
+                socket.emit('program', pg);
+            }
+        });
+
+        $.ajax({
+            url: './programs/welcome.py'
+        }).done(function (pg) {
+            $('#txt_prg').val(pg);
+        });
+
     });
 
-    $('#terminal').click(function () {
-        $('#terminal').find('li:last-child input').focus();
-    });
-
-    $('#btn_run').click(function () {
-        var pg = $('#txt_prg').val();
-        if(pg && pg.trim().length > 0) {
-            socket.emit('program', pg);
-        }
-    });
 </script>
 </body>
 </html>
