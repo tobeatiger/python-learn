@@ -26,18 +26,18 @@ body {
     position: relative;
 }
 
-#program.hidden {
+body:not(.showProgram) #program {
     flex: 0;
     background-color: black;
     border-right: 2px solid #333;
     padding-left: 14px;
 }
 
-#program.hidden textarea, #program.hidden button {
+body:not(.showProgram) #program textarea, body:not(.showProgram) #program button {
     display: none;
 }
 
-#program.hidden #floating_btn {
+body:not(.showProgram) #program #floating_btn {
     right: 3px;
     background-color: #fff;
     border-color: #fff;
@@ -52,9 +52,11 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 8px;
-    font-size: 17px;
-    line-height: 21px;
+    font-size: 15px;
+    line-height: 20px;
     outline: none;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #program button {
@@ -90,13 +92,14 @@ body {
     margin-right: 2px;
     opacity: 0.6;
     border-radius: 50% 0 0 50%;
+    outline: none;
 }
 
-#program:not(.hidden) #floating_btn .gt {
+body.showProgram #program #floating_btn .gt {
     display: none;
 }
 
-#program.hidden #floating_btn .lt {
+body:not(.showProgram) #program #floating_btn .lt {
     display: none;
 }
 
@@ -145,6 +148,7 @@ ul li input {
     /*font-family: monospace;*/
     /*font-family: "Miriam Fixed";*/
     /*font-family: "Courier New";*/
+    margin: 0;
     padding: 0;
     flex: 1;
 }
@@ -161,4 +165,24 @@ ul li span {
     /*font-family: "Miriam Fixed";*/
     /*font-family: "Courier New";*/
     color: cadetblue;
+}
+
+@media (max-width: 720px) {
+    body.showProgram #terminal {
+        display: none;
+    }
+    #program textarea {
+        font-size: 12px;
+        line-height: 18px;
+    }
+    ul li {
+        font-size: 12px;
+        line-height: 18px;
+        min-height: 18px;
+    }
+    ul li input, ul li span {
+        font-size: 12px;
+        line-height: 18px;
+        min-height: 18px;
+    }
 }
