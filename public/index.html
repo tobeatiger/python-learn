@@ -11,7 +11,11 @@
 <body>
 <aside id="program">
     <textarea id="txt_prg"></textarea>
-    <button id="btn_run">走起！</button>
+    <button id="btn_run">跑起来！</button>
+    <div id="floating_btn">
+        <span class="lt">&lt;</span>
+        <span class="gt">&gt;</span>
+    </div>
 </aside>
 <ul id="terminal">
 </ul>
@@ -125,6 +129,10 @@
             if(pg && pg.trim().length > 0) {
                 socket.emit('program', pg);
             }
+        });
+
+        $('#floating_btn').click(function () {
+            $('#program').toggleClass('hidden');
         });
 
         $.ajax({

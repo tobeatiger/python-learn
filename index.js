@@ -34,6 +34,7 @@ function PythonDialog () {
             ctl.commands = [];
         } else {
             ctl.childProcess.stdin.write(ctl.commands.shift()+'\n');
+            ctl._runCommands++;
         }
     });
     this.childProcess.on('close', function (code) {
@@ -43,15 +44,23 @@ function PythonDialog () {
     this.getReply = function () {
         var rpl = ctl.reply;
         ctl.reply = '';
+        var lineNo = ctl._runCommands;
+        if(ctl.commands.length === 0) {
+            ctl._runCommands = -1;
+        }
+        if(lineNo !== -1) {
+            rpl = rpl.replace(new RegExp('File "<stdin>", line [0-9]+', 'g'), 'File "<stdin>", line ' + lineNo);
+        }
         return rpl.replace(new RegExp(' ', 'g'), '&nbsp;').replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
-        // return rpl.replace(new RegExp(' ', 'g'), '&nbsp;').replace(new RegExp('<stdin>', 'g'), '&lt;stdin&gt;');
     };
 
+    this._runCommands = -1; // total commands has been run (current program), for error report usage..., minus the first empty command
     this.run = function (pg) {
         if(pg && pg.length) {
             ctl.commands = [''].concat(pg.split('\n'));
             if(ctl.commands.length) {
                 ctl.childProcess.stdin.write(ctl.commands.shift() + '\n');
+                ctl._runCommands++;
             }
         }
     };
