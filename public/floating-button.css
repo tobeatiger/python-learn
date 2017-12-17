@@ -1,0 +1,35 @@
+.draggable-btn {
+    position: absolute;
+    z-index: 5;
+    background-color: #eee;
+    /* box-shadow: 0 4px 6px #999; */
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    border: 1px solid #ddd;
+    line-height: 50px;
+    text-align: center;
+    opacity: 0.6;
+    right: 30px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.draggable-btn.icon:before {
+    line-height: 52px;
+    width: 48px;
+    display: block;
+    height: 50px;
+    text-align: center;
+}
+.draggable-btn.icon.icon-more:before {
+    content: '…';
+}
+.draggable-btn.icon.icon-close:before {
+    content: '✖';
+    font-size: 20px;
+}
+
+.draggable-btn:active {
+    opacity: 1;
+}
