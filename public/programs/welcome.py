@@ -1,9 +1,9 @@
 print '\n欢迎来学习 Python!\n'
-str = raw_input('Say something: ')
-if str == '':
-  str = 'ABC'
+s = raw_input('Say something: ')
+if s == '':
+  s = 'ABC'
 
-for i in str:
+for i in s:
   print '\n== ' + i + ' =='
   for j in 'Python':
     print i + '  :  ' + j

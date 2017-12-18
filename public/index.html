@@ -172,6 +172,7 @@
         var floatingBtn$ = $.floatingButton({
             target: $('#root'),
             btnName: 'miniController',
+            alignBottom: true,
             onClick: function () {
                 pgList$.find('.content').hide();
                 pgList$.one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend",
@@ -183,19 +184,19 @@
                 );
                 pgList$.toggleClass('show');
                 if(pgList$.hasClass('show')) {
-                    pgList$.css('top', '0').css('right', '0');
+                    pgList$.css('bottom', '0').css('right', '0');
                 } else {
-                    pgList$.css('top', parseInt(floatingBtn$[0].style.top)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
+                    pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
                 }
                 $(this).toggleClass('icon-more').toggleClass('icon-close');
             },
-            dragEnded: function (top) {
+            dragEnded: function (bottom) {
                 if(!pgList$.hasClass('show')) {
-                    $('body').find('.programList').css('top', parseInt(top)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
+                    $('body').find('.programList').css('bottom', parseInt(bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
                 }
             }
         });
-        pgList$.css('top', parseInt(floatingBtn$[0].style.top)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
+        pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
 
         pgList$.find('.nav-button').click(function () {
             $(this).parent().toggleClass('hidden');
