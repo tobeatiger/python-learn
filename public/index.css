@@ -63,7 +63,8 @@ body:not(.showProgram) #program #floating_btn {
 }
 
 #program button {
-    width: 100%;
+    /*width: 100%;*/
+    flex: 1;
     height: 50px;
     line-height: 50px;
     margin-top: 2px;
