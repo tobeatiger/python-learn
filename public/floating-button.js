@@ -58,8 +58,8 @@
         var drag_over = function(event) {
             if($(event.target).get(0) === btn$.get(0)) {
                 event.preventDefault();
+                event.stopPropagation();
             }
-            event.stopPropagation();
             if(!drag_start.data) {
                 return false;
             }
@@ -81,7 +81,9 @@
         };
 
         var drag_end = function(event) {
-            event.stopPropagation();
+            if($(event.target).get(0) === btn$.get(0)) {
+                event.stopPropagation();
+            }
             drag_start.data = undefined;
             if(_settings.alignBottom) {
                 localStorage.setItem(_settings.btnName+'_bottom', btn$[0].style.bottom);

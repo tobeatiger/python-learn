@@ -7,6 +7,7 @@
     <title>Python 终端</title>
     <link rel="stylesheet" href="./index.css">
     <link rel="stylesheet" href="./floating-button.css">
+    <script src="./lib/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="./socket.io/socket.io.js"></script>
     <script src="./jquery.min.js"></script>
     <script src="./floating-button.js"></script>
@@ -14,11 +15,12 @@
 <body class="showProgram">
 <div id="root">
     <aside id="program">
-        <textarea id="txt_prg"></textarea>
+        <div id="editor_wrapper">
+            <div id="txt_prg"></div>
+        </div>
         <div class="buttons" style="display:flex;">
             <button id="btn_cls">清空</button>
-            <button id="btn_paste">黏贴</button>
-            <button id="btn_run">跑起</button>
+            <button id="btn_run">跑起来</button>
         </div>
         <div id="floating_btn">
             <span class="lt">&lt;</span>
@@ -83,7 +85,7 @@
         return rs.join('\n');
     }
 
-    $(window).load(function () {
+    function init () {
 
         var socket = io();
         var hist = [];
@@ -92,10 +94,10 @@
         socket.on('reply', function(msgs) {
             $('#terminal').find('li input').each(function () {
                 $(this).after($('<span></span>').html(
-                    $(this).val()
-                        .replace(new RegExp(' ', 'g'), '&nbsp;')
-                        .replace(new RegExp('>', 'g'), '&gt;')
-                        .replace(new RegExp('<', 'g'), '&lt;')
+                        $(this).val()
+                                .replace(new RegExp(' ', 'g'), '&nbsp;')
+                                .replace(new RegExp('>', 'g'), '&gt;')
+                                .replace(new RegExp('<', 'g'), '&lt;')
                 )).remove();
             });
             if(msgs) {
@@ -151,9 +153,15 @@
             }, 200);
         });
 
+        $('#btn_cls').click(function () {
+            window._editor.setValue('', 1);
+        });
+
         $('#btn_run').click(function () {
-            var pg = preFormat($('#txt_prg').val());
-            $('#txt_prg').val(pg);
+            // var pg = preFormat($('#txt_prg').val());
+            // $('#txt_prg').val(pg);
+            var pg = preFormat(window._editor.getValue());
+            window._editor.setValue(pg, 1);
             if(pg && pg.trim().length > 0) {
                 socket.emit('program', pg);
                 if($(window).width() <= 720) {
@@ -166,10 +174,15 @@
             $('body').toggleClass('showProgram');
         });
 
+        window._editor = ace.edit('txt_prg');
+        window._editor.setTheme('ace/theme/monokai');
+        window._editor.getSession().setMode('ace/mode/python');
+        window._editor.setFontSize(12);
         $.ajax({
             url: './programs/welcome.py'
         }).done(function (pg) {
-            $('#txt_prg').val(pg);
+            // $('#txt_prg').val(pg);
+            window._editor.setValue(pg, -1);
         });
 
         var pgList$ = $('body').find('.programList');
@@ -180,11 +193,11 @@
             onClick: function () {
                 pgList$.find('.content').hide();
                 pgList$.one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend",
-                    function() {
-                        if(pgList$.hasClass('show')) {
-                            pgList$.find('.content').show();
+                        function() {
+                            if(pgList$.hasClass('show')) {
+                                pgList$.find('.content').show();
+                            }
                         }
-                    }
                 );
                 pgList$.toggleClass('show');
                 if(pgList$.hasClass('show')) {
@@ -205,7 +218,16 @@
         pgList$.find('.nav-button').click(function () {
             $(this).parent().toggleClass('hidden');
         });
-    });
+    }
+
+    function fireWhenReady() {
+        if ($.floatingButton && window.io && window.ace) {
+            init();
+        } else {
+            setTimeout(fireWhenReady, 100);
+        }
+    }
+    $(document).ready(fireWhenReady);
 
 </script>
 </body>

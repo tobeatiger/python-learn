@@ -33,7 +33,7 @@ function PythonDialog () {
             ctl.reply += data;
             ctl.commands = [];
         } else {
-            ctl.childProcess.stdin.write(ctl.commands.shift()+'\n');
+            ctl.childProcess.stdin.write(ctl.commands.shift().trimRight()+'\n');
             ctl._runCommands++;
         }
     });
@@ -59,7 +59,7 @@ function PythonDialog () {
         if(pg && pg.length) {
             ctl.commands = [''].concat(pg.split('\n'));
             if(ctl.commands.length) {
-                ctl.childProcess.stdin.write(ctl.commands.shift() + '\n');
+                ctl.childProcess.stdin.write(ctl.commands.shift().trimRight() + '\n');
                 ctl._runCommands++;
             }
         }
@@ -90,7 +90,7 @@ io.on('connection', function(socket){
     socket.on('command', function(command) {
         console.log('\n-------- ' + new Date() + ' --------');
         console.log(command + '\n\n');
-        socket.__python_dialog.childProcess.stdin.write(command + '\n');
+        socket.__python_dialog.childProcess.stdin.write((command || '').trimRight() + '\n');
         setTimeout(function() {
             if(socket.__python_dialog) {
                 socket.emit('reply', socket.__python_dialog.getReply());

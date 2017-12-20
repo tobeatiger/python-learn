@@ -2,7 +2,6 @@
     position: absolute;
     z-index: 5;
     background-color: #eee;
-    /* box-shadow: 0 4px 6px #999; */
     width: 50px;
     height: 50px;
     border-radius: 15px;
@@ -13,6 +12,7 @@
     right: 30px;
     font-size: 30px;
     font-weight: bold;
+    font-family: monospace;
 }
 
 .draggable-btn.icon:before {
@@ -21,9 +21,12 @@
     display: block;
     height: 50px;
     text-align: center;
+    font-family: "Courier New";
+    /*font-family: monospace;*/
 }
 .draggable-btn.icon.icon-more:before {
     content: '…';
+    /*content: 'ⵈ';*/
 }
 .draggable-btn.icon.icon-close:before {
     content: '✖';
