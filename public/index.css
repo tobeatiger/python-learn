@@ -73,9 +73,10 @@ body:not(.showProgram) #program #floating_btn {
     border: none;
     border-radius: 5px;
     margin: 5px;
+    outline: none;
 }
 
-#program button#btn_cls {
+#program button#btn_cls, #program button#btn_toggle_gutter {
     margin-right: 0;
     background-color: #444;
 }
@@ -87,6 +88,19 @@ body:not(.showProgram) #program #floating_btn {
 #program button:hover {
     cursor: pointer;
     background-color: green;
+}
+
+#program button#btn_toggle_gutter {
+    flex-grow: 0;
+    flex-basis: 38px;
+}
+
+#program button#btn_toggle_gutter.on .show-gutter {
+    display: none;
+}
+
+#program button#btn_toggle_gutter:not(.on) .hide-gutter {
+    display: none;
 }
 
 #floating_btn {
@@ -202,6 +216,9 @@ ul li span {
         font-size: 12px;
         line-height: 18px;
         min-height: 18px;
+    }
+    #program button#btn_toggle_gutter {
+        flex-basis: 32px;
     }
 }
 

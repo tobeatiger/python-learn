@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./index.css">
     <link rel="stylesheet" href="./floating-button.css">
     <script src="./lib/ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./lib/ace/src-min/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
     <script src="./socket.io/socket.io.js"></script>
     <script src="./jquery.min.js"></script>
     <script src="./floating-button.js"></script>
@@ -19,6 +20,10 @@
             <div id="txt_prg"></div>
         </div>
         <div class="buttons" style="display:flex;">
+            <button id="btn_toggle_gutter" class="on">
+                <span class="show-gutter">&gt;</span>
+                <span class="hide-gutter">&lt;</span>
+            </button>
             <button id="btn_cls">清空</button>
             <button id="btn_run">跑起来</button>
         </div>
@@ -165,7 +170,9 @@
             if(pg && pg.trim().length > 0) {
                 socket.emit('program', pg);
                 if($(window).width() <= 720) {
-                    $('body').toggleClass('showProgram');
+                    setTimeout(function () {
+                        $('body').toggleClass('showProgram');
+                    }, 50);
                 }
             }
         });
@@ -175,9 +182,33 @@
         });
 
         window._editor = ace.edit('txt_prg');
+        window._editor.$blockScrolling = Infinity;
         window._editor.setTheme('ace/theme/monokai');
-        window._editor.getSession().setMode('ace/mode/python');
+        window._editor.setDisplayIndentGuides(true);
+        window._editor.setShowPrintMargin(false);
+        window._editor.setSelectionStyle('text');
         window._editor.setFontSize(12);
+        window._editor.renderer.setPadding(8);
+        window._editor.session.setMode('ace/mode/python');
+        window._editor.session.setUseWrapMode(true);
+        var options = { scrollPastEnd: true, tabSize: 2, useSoftTabs: true };
+        if($(window).width() <= 720) {
+            window._editor.renderer.setShowGutter(false);
+            $('#btn_toggle_gutter').removeClass('on');
+            window._editor.setShowFoldWidgets(false);
+            window._editor.session.setFoldStyle('manual');
+        } else {
+            options.enableBasicAutocompletion = true;
+            options.enableSnippets = true;
+            options.enableLiveAutocompletion = true;
+        }
+        window._editor.setOptions(options);
+
+        $('#btn_toggle_gutter').click(function () {
+            $(this).toggleClass('on');
+            window._editor.renderer.setShowGutter($(this).hasClass('on'));
+        });
+
         $.ajax({
             url: './programs/welcome.py'
         }).done(function (pg) {

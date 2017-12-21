@@ -13,59 +13,128 @@ var cp = require('child_process');
 
 function PythonDialog () {
 
-    this.childProcess = cp.spawn('python', ['-i']);
-    this.childProcess.stdout.setEncoding('utf8');
-    this.childProcess.stderr.setEncoding('utf8');
-
-    this.commands = [];
-    this.reply = '';
     var ctl = this;
-    this.childProcess.stdout.on('data', function(data) {
-        // data = data.replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
-        if(ctl.reply.slice(-4).trim() === '>>>') {
-            ctl.reply = ctl.reply.slice(0, -4) + data + '>>> ';
-        } else {
-            ctl.reply += data;
-        }
-    });
-    this.childProcess.stderr.on('data', function(data) {
-        if((data.trim() !== '>>>' || ctl.commands.length === 0) && (data.trim() !== '...' || (data.trim() === '...' && ctl.commands.length === 0))) {
-            ctl.reply += data;
-            ctl.commands = [];
-        } else {
-            ctl.childProcess.stdin.write(ctl.commands.shift().trimRight()+'\n');
-            ctl._runCommands++;
-        }
-    });
-    this.childProcess.on('close', function (code) {
-        console.log('Exited with code: ' + code);
-    });
 
-    this.getReply = function () {
+    ctl.commands = [];
+    ctl.reply = '';
+    ctl._runCommands = -1; // total commands has been run (current program), for error report usage..., minus the first empty command
+    ctl._processedCommandsInBlock = 0;  // total commands has been processed in block like for...:, for error report usage
+
+    var _initCP = function () {
+        ctl.childProcess = cp.spawn('python', ['-i']);
+        ctl.childProcess.stdout.setEncoding('utf8');
+        ctl.childProcess.stderr.setEncoding('utf8');
+        ctl.childProcess.stdout.on('data', function(data) {
+
+            if(ctl._deadloop) {
+                return;
+            }
+
+            // Note: you don't know how many times call into here for one command
+            // data = data.replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
+            if(ctl.reply.slice(-4).trim() === '>>>') {
+                ctl.reply = ctl.reply.slice(0, -4) + data + '>>> ';
+            } else {
+                ctl.reply += data;
+            }
+
+            // [ Detect dead looping...
+            if(!ctl._dataBeginTime) {
+                ctl._dataBeginTime = new Date().getTime();
+                ctl._triggerDataCountWithinShortTime = 0;
+            }
+            if(new Date().getTime() - ctl._dataBeginTime < 200) {
+                ctl._triggerDataCountWithinShortTime++;
+                if(ctl._triggerDataCountWithinShortTime > 500) {
+                    ctl.reply += '\nYou may enter a dead looping!!!\nSession will be closed and re-initialized...\n\n>>> ';
+                    ctl.childProcess.kill();
+                    ctl._deadloop = true;
+                    setTimeout(function () {
+                        _initCP();
+                        ctl._triggerDataCountWithinShortTime = 0;
+                        ctl._deadloop = false;
+                        try {
+                            ctl.childProcess.stdin.write('\n');
+                            setTimeout(function () {
+                                ctl.reply = '';
+                            }, 50);
+                        } catch (e) {
+                            console.log('catched error run empty command after re-initialize: ' + e.message);
+                        }
+                    }, 200);
+                }
+            } else {
+                ctl._dataBeginTime = null;
+                ctl._triggerDataCountWithinShortTime = 0;
+            }
+            // Detect dead looping...]
+        });
+        ctl.childProcess.stderr.on('data', function(data) {
+            if((data.trim() !== '>>>' || ctl.commands.length === 0) && (data.trim() !== '...' || (data.trim() === '...' && ctl.commands.length === 0))) {
+                ctl.reply += data;
+                ctl.commands = [];
+            } else {
+                if(data.trim() === '...') {
+                    ctl._processedCommandsInBlock++;
+                } else {
+                    ctl._processedCommandsInBlock = 0;
+                }
+                try {
+                    ctl.childProcess.stdin.write(ctl.commands.shift().trimRight()+'\n');
+                    ctl._runCommands++;
+                } catch (e) {
+                    console.log('catched error continuing run commands: ' + e.message);
+                }
+            }
+        });
+        ctl.childProcess.on('close', function (code) {
+            console.log('Exited with code: ' + code);
+        });
+    };
+
+    _initCP();
+
+    ctl.getReply = function () {
         var rpl = ctl.reply;
         ctl.reply = '';
         var lineNo = ctl._runCommands;
+        if(lineNo !== -1) {
+            var pre_pattern = 'File "<stdin>", line ';
+            var re = new RegExp(pre_pattern + '[0-9]+', 'g');
+            var match = re.exec(rpl);
+            var returnErrLine = null;
+            if(match && match[0]) {
+                returnErrLine = parseInt(match[0].substr(pre_pattern.length, match[0].length), 10);
+            }
+            if(lineNo > returnErrLine && returnErrLine !== 1) {
+                // error happen in block, and before the block has been successfully run
+                rpl = rpl.replace(re, pre_pattern + (lineNo - ctl._processedCommandsInBlock - 1 + returnErrLine));
+            } else {
+                rpl = rpl.replace(re, pre_pattern + lineNo);
+            }
+        }
         if(ctl.commands.length === 0) {
             ctl._runCommands = -1;
-        }
-        if(lineNo !== -1) {
-            rpl = rpl.replace(new RegExp('File "<stdin>", line [0-9]+', 'g'), 'File "<stdin>", line ' + lineNo);
+            ctl._processedCommandsInBlock = 0;
         }
         return rpl.replace(new RegExp(' ', 'g'), '&nbsp;').replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
     };
 
-    this._runCommands = -1; // total commands has been run (current program), for error report usage..., minus the first empty command
-    this.run = function (pg) {
+    ctl.run = function (pg) {
         if(pg && pg.length) {
             ctl.commands = [''].concat(pg.split('\n'));
             if(ctl.commands.length) {
-                ctl.childProcess.stdin.write(ctl.commands.shift().trimRight() + '\n');
-                ctl._runCommands++;
+                try {
+                    ctl.childProcess.stdin.write(ctl.commands.shift().trimRight() + '\n');
+                    ctl._runCommands++;
+                } catch (e) {
+                    console.log('catched error in run: ' + e.message);
+                }
             }
         }
     };
 
-    return this;
+    return ctl;
 }
 
 app.get('/', function (req, res) {
@@ -90,7 +159,11 @@ io.on('connection', function(socket){
     socket.on('command', function(command) {
         console.log('\n-------- ' + new Date() + ' --------');
         console.log(command + '\n\n');
-        socket.__python_dialog.childProcess.stdin.write((command || '').trimRight() + '\n');
+        try {
+            socket.__python_dialog.childProcess.stdin.write((command || '').trimRight() + '\n');
+        } catch (e) {
+            console.log('catched error runing a user command: ' + e.message);
+        }
         setTimeout(function() {
             if(socket.__python_dialog) {
                 socket.emit('reply', socket.__python_dialog.getReply());
@@ -123,7 +196,7 @@ io.on('connection', function(socket){
                 socket.__python_dialog.childProcess.stdin.write('\n');
                 socket.__python_dialog.childProcess.stdin.write('exit()\n');
             } catch (e) {
-                console.log(e.message);
+                console.log('catched error when user disconnect destroy.' + e.message);
             }
         }
     });
