@@ -10,7 +10,7 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 
 var cp = require('child_process');
-
+var pusage = require('pidusage');
 function PythonDialog () {
 
     var ctl = this;
@@ -51,17 +51,16 @@ function PythonDialog () {
                     ctl._deadloop = true;
                     setTimeout(function () {
                         _initCP();
-                        ctl._triggerDataCountWithinShortTime = 0;
-                        ctl._deadloop = false;
                         try {
-                            ctl.childProcess.stdin.write('\n');
+                            // ctl.childProcess.stdin.write('\n');
                             setTimeout(function () {
-                                ctl.reply = '';
-                            }, 50);
+                                ctl._triggerDataCountWithinShortTime = 0;
+                                ctl._deadloop = false;
+                            }, 200);
                         } catch (e) {
                             console.log('catched error run empty command after re-initialize: ' + e.message);
                         }
-                    }, 200);
+                    }, 100);
                 }
             } else {
                 ctl._dataBeginTime = null;
@@ -90,6 +89,34 @@ function PythonDialog () {
         ctl.childProcess.on('close', function (code) {
             console.log('Exited with code: ' + code);
         });
+
+        var _over90Times = 0; // times checked that cpu usage keeps over 90%
+        clearInterval(ctl._monitor);
+        ctl._monitor = setInterval(function () {
+            pusage.stat(ctl.childProcess.pid, function (err, stat) {
+                // console.log('Pcpu: %s', stat.cpu);
+                // console.log('Mem: %s', stat.memory);
+                if(!stat) {
+                    // ctl.childProcess already exited
+                    console.log('stat undefined...');
+                    return;
+                }
+                if(stat.cpu > 90) {
+                    _over90Times++;
+                    if(_over90Times >= 2) {
+                        ctl.reply += '\nYou may had entered a dead looping!!!\nSession was closed and re-initialized...\n\n';
+                        ctl.childProcess.kill();
+                        setTimeout(function () {
+                            _initCP();
+                            ctl._triggerDataCountWithinShortTime = 0;
+                        }, 100);
+                        clearInterval(ctl._monitor);
+                    }
+                } else {
+                    _over90Times = 0;
+                }
+            });
+        }, 1000);
     };
 
     _initCP();
@@ -166,7 +193,22 @@ io.on('connection', function(socket){
         }
         setTimeout(function() {
             if(socket.__python_dialog) {
-                socket.emit('reply', socket.__python_dialog.getReply());
+                if(socket.__python_dialog._deadloop) {
+                    // dead loop with output
+                    setTimeout(function () {
+                        socket.emit('reply', socket.__python_dialog.getReply());
+                    }, 5000);
+                } else {
+                    var _rpl = socket.__python_dialog.getReply();
+                    if(_rpl.trim() === '' && command.trim().indexOf('exit') < 0) {
+                        // dead loop with no output
+                        setTimeout(function () {
+                            socket.emit('reply', socket.__python_dialog.getReply());
+                        }, 5000);
+                    } else {
+                        socket.emit('reply', _rpl);
+                    }
+                }
             }
         }, 200);
     });

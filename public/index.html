@@ -97,14 +97,6 @@
         var currHistIdx = -1;
         socket.emit('init', 'session init');
         socket.on('reply', function(msgs) {
-            $('#terminal').find('li input').each(function () {
-                $(this).after($('<span></span>').html(
-                        $(this).val()
-                                .replace(new RegExp(' ', 'g'), '&nbsp;')
-                                .replace(new RegExp('>', 'g'), '&gt;')
-                                .replace(new RegExp('<', 'g'), '&lt;')
-                )).remove();
-            });
             if(msgs) {
                 msgs = msgs.split('\n');
                 $.each(msgs, function (index, msg) {
@@ -117,6 +109,14 @@
                                     hist.push($(this).val());
                                 }
                                 currHistIdx = hist.length;
+                                $('#terminal').find('li input').each(function () {
+                                    $(this).after($('<span></span>').html(
+                                            $(this).val()
+                                                    .replace(new RegExp(' ', 'g'), '&nbsp;')
+                                                    .replace(new RegExp('>', 'g'), '&gt;')
+                                                    .replace(new RegExp('<', 'g'), '&lt;')
+                                    )).remove();
+                                });
                             }
                         }).keydown(function(e) {
                             switch (e.which) {
