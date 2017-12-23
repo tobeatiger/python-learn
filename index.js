@@ -1,7 +1,12 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+
+// var io = require('socket.io')(http);
+var Server = require('socket.io');
+var io = new Server(http, {
+    path: '/socket-py-learn'
+});
 
 app.use(express.static('public'));
 
@@ -30,6 +35,14 @@ function PythonDialog () {
                 return;
             }
 
+            //if(!ctl._testEnterCount) {
+            //    ctl._testEnterCount = 0;
+            //    ctl._lastTime = new Date().getTime();
+            //}
+            //ctl._testEnterCount++;
+            //console.log('%%%%%%%%%%>>> ctl._testEnterCount: ' + ctl._testEnterCount);
+            //console.log('%%%%%%%%%%>>> time passes: ' + (new Date().getTime() - ctl._lastTime));
+
             // Note: you don't know how many times call into here for one command
             // data = data.replace(new RegExp('<', 'g'), '&lt;').replace(new RegExp('>', 'g'), '&gt;');
             if(ctl.reply.slice(-4).trim() === '>>>') {
@@ -43,23 +56,18 @@ function PythonDialog () {
                 ctl._dataBeginTime = new Date().getTime();
                 ctl._triggerDataCountWithinShortTime = 0;
             }
-            if(new Date().getTime() - ctl._dataBeginTime < 200) {
+            if(new Date().getTime() - ctl._dataBeginTime < 100) {
                 ctl._triggerDataCountWithinShortTime++;
-                if(ctl._triggerDataCountWithinShortTime > 500) {
-                    ctl.reply += '\nYou may enter a dead looping!!!\nSession will be closed and re-initialized...\n\n>>> ';
+                if(ctl._triggerDataCountWithinShortTime > 100) {
+                    ctl.reply += '\nYou may enter a dead looping!!!\nSession will be closed and re-initialized...\n\n';
                     ctl.childProcess.kill();
                     ctl._deadloop = true;
                     setTimeout(function () {
                         _initCP();
-                        try {
-                            // ctl.childProcess.stdin.write('\n');
-                            setTimeout(function () {
-                                ctl._triggerDataCountWithinShortTime = 0;
-                                ctl._deadloop = false;
-                            }, 200);
-                        } catch (e) {
-                            console.log('catched error run empty command after re-initialize: ' + e.message);
-                        }
+                        setTimeout(function () {
+                            ctl._triggerDataCountWithinShortTime = 0;
+                            ctl._deadloop = false;
+                        }, 200);
                     }, 100);
                 }
             } else {
@@ -90,30 +98,33 @@ function PythonDialog () {
             console.log('Exited with code: ' + code);
         });
 
-        var _over90Times = 0; // times checked that cpu usage keeps over 90%
+        var _overSomePercentTimes = 0; // times checked that cpu usage keeps over 90%
         clearInterval(ctl._monitor);
         ctl._monitor = setInterval(function () {
             pusage.stat(ctl.childProcess.pid, function (err, stat) {
-                // console.log('Pcpu: %s', stat.cpu);
-                // console.log('Mem: %s', stat.memory);
                 if(!stat) {
                     // ctl.childProcess already exited
+                    clearInterval(ctl._monitor);
                     console.log('stat undefined...');
                     return;
                 }
-                if(stat.cpu > 90) {
-                    _over90Times++;
-                    if(_over90Times >= 2) {
-                        ctl.reply += '\nYou may had entered a dead looping!!!\nSession was closed and re-initialized...\n\n';
+                // console.log('Pcpu: %s', stat.cpu);
+                // console.log('Mem: %s', stat.memory);
+                if(stat.cpu > 10) {
+                    _overSomePercentTimes++;
+                    if(_overSomePercentTimes >= 3) {
+                        _overSomePercentTimes = 0;
+                        clearInterval(ctl._monitor);
                         ctl.childProcess.kill();
                         setTimeout(function () {
+                            if(ctl.reply.trim() !== '') {
+                                ctl.reply = '\nYou may had entered a dead looping!!!\nSession was closed and re-initialized...\n\n'
+                            }
                             _initCP();
-                            ctl._triggerDataCountWithinShortTime = 0;
                         }, 100);
-                        clearInterval(ctl._monitor);
                     }
                 } else {
-                    _over90Times = 0;
+                    _overSomePercentTimes = 0;
                 }
             });
         }, 1000);
@@ -190,25 +201,28 @@ io.on('connection', function(socket){
             socket.__python_dialog.childProcess.stdin.write((command || '').trimRight() + '\n');
         } catch (e) {
             console.log('catched error runing a user command: ' + e.message);
+            socket.emit('reply', '>>>&nbsp;');
+            return;
         }
         setTimeout(function() {
             if(socket.__python_dialog) {
-                if(socket.__python_dialog._deadloop) {
-                    // dead loop with output
+                //if(socket.__python_dialog._deadloop) {
+                //    // dead loop with output
+                //    setTimeout(function () {
+                //        socket.emit('reply', socket.__python_dialog.getReply());
+                //    }, 5000);
+                //} else {
+                var _rpl = socket.__python_dialog.getReply();
+                if(_rpl.trim() === '' && command.trim().indexOf('exit') < 0) {
+                    // dead loop with no output
                     setTimeout(function () {
-                        socket.emit('reply', socket.__python_dialog.getReply());
+                        _rpl = '\nYou may had entered a dead looping!!!\nSession was closed and re-initialized...\n\n';
+                        socket.emit('reply', _rpl);
                     }, 5000);
                 } else {
-                    var _rpl = socket.__python_dialog.getReply();
-                    if(_rpl.trim() === '' && command.trim().indexOf('exit') < 0) {
-                        // dead loop with no output
-                        setTimeout(function () {
-                            socket.emit('reply', socket.__python_dialog.getReply());
-                        }, 5000);
-                    } else {
-                        socket.emit('reply', _rpl);
-                    }
+                    socket.emit('reply', _rpl);
                 }
+                //}
             }
         }, 200);
     });
