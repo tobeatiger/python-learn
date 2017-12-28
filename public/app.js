@@ -198,6 +198,20 @@ function init () {
     pgList$.find('.nav-button').click(function () {
         $(this).parent().toggleClass('hidden');
     });
+
+    pgList$.on('click', '.script-list > ul > li', function (e) {
+        if(this === e.target) {
+            // click on menu item
+            $(e.target).toggleClass('expanded');
+        } else {
+            $.ajax({
+                url: './programs/' + $(e.target).data('pg')
+            }).done(function (pg) {
+                $('.script-preview').text(pg);
+                $('.script-list').addClass('hidden');
+            });
+        }
+    });
 }
 
 function fireWhenReady() {

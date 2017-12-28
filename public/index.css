@@ -281,14 +281,17 @@ ul li span {
 
 .programList .content .script-block .script-list {
     position: absolute;
-    width: 230px;
+    width: 260px;
     height: calc(100% + 28px);
     background-color: #000;
     border-radius: 0 10px 10px 0;
     left: -8px;
     top: -14px;
-    opacity: 0.6;
-    padding: 16px 0;
+    /*opacity: 0.75;*/
+    padding: 14px 0;
+    /*-webkit-box-shadow: 4px 0 10px #555;*/
+    /*-moz-box-shadow: 4px 0 10px #555;*/
+    /*box-shadow: 4px 0 6px #555;*/
 }
 
 .programList .content .script-block .script-list.hidden {
@@ -310,6 +313,7 @@ ul li span {
     top: 80px;
     padding-right: 2px;
     font-family: monospace;
+    /*box-shadow: 4px 0 6px #555;*/
 }
 
 .programList .content .script-block .script-list .nav-button:hover {
@@ -340,4 +344,75 @@ ul li span {
     margin-right: 2px;
     overflow-x: hidden;
     overflow-y: auto;
+    color: lightblue;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.programList .content .script-block .script-list > ul {
+    overflow: hidden;
+}
+
+.programList .content .script-block .script-list > ul > li:nth-child(even) {
+    background-color: #333;
+}
+
+.programList .content .script-block .script-list > ul > li {
+    position: relative;
+    line-height: 40px;
+    font-size: 16px;
+    background-color: #222;
+    color: white;
+    padding-left: 10px;
+}
+
+.programList .content .script-block .script-list > ul > li:after {
+    content: '>';
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    line-height: 38px;
+    font-size: 16px;
+    /*font-family: monospace;*/
+    font-weight: bold;
+    text-align: center;
+    color: springgreen;
+}
+
+.programList .content .script-block .script-list > ul > li.expanded:after {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.programList .content .script-block .script-list > ul > li:not(.expanded) > ul {
+    display: none;
+}
+
+.programList .content .script-block .script-list > ul > li.expanded > ul {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    left: -10px;
+    width: calc(100% + 10px);
+    border-top: 1px solid #444;
+    background-color: #2f3125;
+    border-left: 2px solid;
+    color: lightblue;
+}
+
+.programList .content .script-block .script-list > ul > li.expanded > ul > li {
+    line-height: 34px;
+    font-size: 14px;
+    padding-left: 14px;
+    border-bottom: 1px solid #444;
+    border-top: 1px solid #2f3125;
+}
+
+.programList .content .script-block .script-list > ul li:hover {
+    cursor: pointer;
 }
