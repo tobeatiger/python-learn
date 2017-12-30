@@ -145,6 +145,10 @@
             }
         };
 
+        btn$.fireClick = function () {
+            _settings.onClick.bind(btn$)();
+        };
+
         return btn$;
     };
 
