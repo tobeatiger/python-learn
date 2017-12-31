@@ -13,6 +13,11 @@ export function initPgList() {
                     }
                 }
             );
+            setTimeout(function () {
+                if(pgList$.hasClass('show')) {
+                    pgList$.find('.content').show();
+                }
+            }, 200);
             pgList$.toggleClass('show');
             if(pgList$.hasClass('show')) {
                 pgList$.css('bottom', '0').css('right', '0');

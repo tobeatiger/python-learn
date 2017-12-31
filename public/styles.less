@@ -28,6 +28,8 @@ ul {
 }
 
 #root {
+    display: -webkit-flex;
+    display: -webkit-box;
     display: flex;
     width: 100%;
     height: 100%;
@@ -36,6 +38,8 @@ ul {
 body {
     &:not(.showProgram) {
         #program {
+            -webkit-flex: 0;
+            -webkit-box-flex: 0;
             flex: 0;
             background-color: black;
             border-right: 2px solid #333;
@@ -74,11 +78,15 @@ body {
 #program {
     background-color: #272822;
     height: 100%;
+    -webkit-flex: 1;
+    -webkit-box-flex: 1;
     flex: 1;
     padding: 10px 0 0;
     position: relative;
     #editor_wrapper {
         height: calc(~"100%" - 55px);
+        height: -webkit-calc(~"100%" - 55px);
+        height: -moz-calc(~"100%" - 55px);
         position: relative;
         width: 100%;
         #txt_prg {
@@ -91,8 +99,12 @@ body {
         }
     }
     .buttons {
+        display: -webkit-flex;
+        display: -webkit-box;
         display: flex;
         button {
+            -webkit-flex: 1;
+            -webkit-box-flex: 1;
             flex: 1;
             height: 45px;
             line-height: 45px;
@@ -108,6 +120,8 @@ body {
                 cursor: pointer;
             }
             &#btn_run {
+                -webkit-flex: 2;
+                -webkit-box-flex: 2;
                 flex: 2;
                 &:hover {
                     background-color: green;
@@ -121,10 +135,13 @@ body {
                 }
             }
             &#btn_toggle_gutter {
-                flex-grow: 0;
-                flex-basis: 38px;
+                width: 38px;
+                -webkit-flex: 0 0 38px;
+                flex: 0 0 38px;
                 @media (max-width: 720px) {
-                    flex-basis: 32px;
+                    width: 32px;
+                    -webkit-flex: 0 0 32px;
+                    flex: 0 0 32px;
                 }
                 &.on {
                     .show-gutter {
@@ -166,6 +183,8 @@ body {
 #terminal {
     background-color: black;
     height: 100%;
+    -webkit-flex: 1;
+    -webkit-box-flex: 1;
     flex: 1;
     overflow-y: auto;
     padding: 8px;
@@ -182,6 +201,8 @@ body {
         min-height: 20px;
         word-wrap: break-word;
         &:last-child {
+            display: -webkit-flex;
+            display: -webkit-box;
             display: flex;
         }
         input {
@@ -198,6 +219,8 @@ body {
             /*font-family: "Courier New";*/
             margin: 0;
             padding: 0;
+            -webkit-flex: 1;
+            -webkit-box-flex: 1;
             flex: 1;
             &::-ms-clear {
                 display: none;
@@ -252,10 +275,14 @@ body {
         bottom: 0;
         right: 0;
         /*opacity: 0.9;*/
+        display: -webkit-flex;
+        display: -webkit-box;
         display: flex;
     }
     .content {
         background-color: #333;
+        -webkit-flex: 1;
+        -webkit-box-flex: 1;
         flex: 1;
         display: none;
         height: 100%;
@@ -270,12 +297,16 @@ body {
         }
         .script-block {
             height: calc(~"100%" - 72px);
+            height: -webkit-calc(~"100%" - 72px);
+            height: -moz-calc(~"100%" - 72px);
             position: relative;
             margin: 14px 8px 0;
             .script-list {
                 position: absolute;
                 width: 260px;
                 height: calc(~"100% + 28px");
+                height: -webkit-calc(~"100% + 28px");
+                height: -moz-calc(~"100% + 28px");
                 background-color: #000;
                 border-radius: 0 10px 10px 0;
                 left: -8px;
@@ -365,6 +396,8 @@ body {
                                 position: relative;
                                 left: -10px;
                                 width: calc(~"100% + 10px");
+                                width: -webkit-calc(~"100% + 10px");
+                                width: -moz-calc(~"100% + 10px");
                                 border-top: 1px solid #444;
                                 background-color: #2f3125;
                                 border-left: 2px solid;
@@ -391,6 +424,8 @@ body {
             }
             .script-preview {
                 height: calc(~"100%" - 40px);
+                height: -webkit-calc(~"100%" - 40px);
+                height: -moz-calc(~"100%" - 40px);
                 /*border: 1px solid #666;*/
                 border-radius: 6px;
                 margin-left: 16px;
@@ -406,6 +441,8 @@ body {
                 #preview_editor {
                     position: absolute;
                     height: calc(~"100%" - 8px);
+                    height: -webkit-calc(~"100%" - 8px);
+                    height: -moz-calc(~"100%" - 8px);
                     width: 100%;
                     z-index: 0;
                 }
@@ -414,6 +451,8 @@ body {
                     bottom: 7px;
                     height: 40px;
                     width: calc(~"100%" - 34px);
+                    width: -webkit-calc(~"100%" - 34px);
+                    width: -moz-calc(~"100%" - 34px);
                     border: none;
                     background-color: darkgreen;
                     color: #fff;
