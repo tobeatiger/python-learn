@@ -4,7 +4,9 @@
   "description": "python compiler in web",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --env=prod ./public/app.js ./public/bundle.js",
+    "dev": "webpack --watch ./public/app.js ./public/bundle.js"
   },
   "author": "HBY",
   "license": "ISC",
@@ -13,5 +15,9 @@
     "pidusage": "^1.2.0",
     "python-shell": "^0.4.0",
     "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "uglifyjs-webpack-plugin": "^1.1.5",
+    "webpack": "^3.10.0"
   }
 }
