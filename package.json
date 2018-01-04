@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.2",
+    "jquery": "^3.2.1",
     "pidusage": "^1.2.0",
+    "popmotion": "^8.1.6",
     "python-shell": "^0.4.0",
     "socket.io": "^2.0.4"
   },

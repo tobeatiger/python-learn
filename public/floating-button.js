@@ -1,3 +1,5 @@
+import jQuery from 'jquery';
+
 (function ($) {
 
     var mouseEventTypes = {
@@ -6,7 +8,7 @@
         touchend : "mouseup"
     };
 
-    for (originalType in mouseEventTypes) {
+    for (var originalType in mouseEventTypes) {
         document.addEventListener(originalType, function(originalEvent) {
             var event = document.createEvent("MouseEvents");
             var touch = originalEvent.changedTouches[0];
@@ -125,7 +127,7 @@
 
         } else {
 
-            btn$.off('click').on('click', function () {
+            btn$.off('click').on('click', function (e) {
                 _settings.onClick.bind(btn$)();
             });
 

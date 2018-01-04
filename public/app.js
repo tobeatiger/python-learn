@@ -1,4 +1,4 @@
-import './floating-button';
+import $ from 'jquery';
 import {initHome} from './home-page';
 import {initPgList} from './pg-list-page';
 
@@ -8,7 +8,7 @@ function init () {
 }
 
 function fireWhenReady() {
-    if ($.floatingButton && window.io && window.ace) {
+    if (window.io && window.ace) {
         init();
     } else {
         setTimeout(fireWhenReady, 100);

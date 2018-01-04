@@ -1,9 +1,11 @@
+import $ from 'jquery';
+import { draggableButton } from './draggable-button';
+
 export function initPgList() {
     var pgList$ = $('body').find('.programList');
-    var floatingBtn$ = $.floatingButton({
+    var floatingBtn$ = draggableButton({
         target: $('#root'),
-        btnName: 'miniController',
-        alignBottom: true,
+        btnName: 'floating_controller',
         onClick: function () {
             pgList$.find('.content').hide();
             pgList$.one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend",
@@ -21,8 +23,10 @@ export function initPgList() {
             pgList$.toggleClass('show');
             if(pgList$.hasClass('show')) {
                 pgList$.css('bottom', '0').css('right', '0');
+                //pgList$.find('.content').show();
             } else {
                 pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
+                //pgList$.find('.content').hide();
             }
             $(this).toggleClass('icon-more').toggleClass('icon-close');
         },
@@ -76,4 +80,4 @@ export function initPgList() {
             floatingBtn$.fireClick();
         }
     });
-};
+}

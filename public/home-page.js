@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 function preFormat (code) {
     var rs = [];
     if(code) {
@@ -163,4 +165,4 @@ export function initHome() {
         // $('#txt_prg').val(pg);
         window._editor.setValue(pg, -1);
     });
-};
+}
