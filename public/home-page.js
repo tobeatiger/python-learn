@@ -100,18 +100,19 @@ export function initHome() {
     });
 
     var t$ = $('#terminal');
-    t$.click(function () {
+    t$.on('click', function () {
         t$.find('li:last-child input').focus();
         setTimeout(function () {
             t$.animate({scrollTop: $('#terminal').get(0).scrollHeight}, 300);
         }, 200);
     });
 
-    $('#btn_cls').click(function () {
+    $('#btn_cls').on('click touchstart', function (e) {
         window._editor.setValue('', 1);
+        e.preventDefault();
     });
 
-    $('#btn_run').click(function () {
+    $('#btn_run').on('click touchstart', function (e) {
         // var pg = preFormat($('#txt_prg').val());
         // $('#txt_prg').val(pg);
         var pg = preFormat(window._editor.getValue());
@@ -125,10 +126,12 @@ export function initHome() {
                 }, 50);
             }
         }
+        e.preventDefault();
     });
 
-    $('#floating_btn').click(function () {
+    $('#floating_btn').on('click touchstart', function (e) {
         $('body').toggleClass('showProgram');
+        e.preventDefault();
     });
 
     window._editor = ace.edit('txt_prg');
@@ -154,9 +157,10 @@ export function initHome() {
     }
     window._editor.setOptions(options);
 
-    $('#btn_toggle_gutter').click(function () {
+    $('#btn_toggle_gutter').on('click touchstart', function (e) {
         $(this).toggleClass('on');
         window._editor.renderer.setShowGutter($(this).hasClass('on'));
+        e.preventDefault();
     });
 
     $.ajax({

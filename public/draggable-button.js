@@ -38,7 +38,8 @@ export function draggableButton (params) {
         divStyler.set({y: xy.y});
     });
     listen(btn, 'mousedown touchstart').start(
-        () => {
+        (e) => {
+            e.preventDefault();
             btn._startDragXY = btnXY.get();
             pointer(btnXY.get()).start(btnXY);
         }
@@ -49,9 +50,9 @@ export function draggableButton (params) {
         }
     );
 
-    btn$.click(() => {
+    listen(btn, 'mouseup touchend').start(() => {
         let currentXY = btnXY.get();
-        if(btn._startDragXY.x == currentXY.x && btn._startDragXY.y == currentXY.y) {
+        if(btn._startDragXY.x == currentXY.x && Math.abs(btn._startDragXY.y - currentXY.y) <= 3) {
             _settings.onClick.bind(btn$)();
         }
     });

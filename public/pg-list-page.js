@@ -38,8 +38,9 @@ export function initPgList() {
     });
     pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
 
-    pgList$.find('.nav-button').click(function () {
+    pgList$.find('.nav-button').on('click touchstart', function (e) {
         $(this).parent().toggleClass('hidden');
+        e.preventDefault();
     });
 
     window._preview_editor = ace.edit('preview_editor');
@@ -56,10 +57,11 @@ export function initPgList() {
     window._preview_editor.renderer.setShowGutter(false);
     window._preview_editor.setShowFoldWidgets(false);
     window._preview_editor.setOptions({ scrollPastEnd: true, tabSize: 2, useSoftTabs: true });
-    $('#preview_editor').click(function () {
+    $('#preview_editor').on('click touchstart', function (e) {
         pgList$.find('.nav-button').parent().addClass('hidden');
+        e.preventDefault();
     }).find('.ace_text-input').prop('disabled', true);
-    pgList$.on('click', '.script-list > ul > li', function (e) {
+    pgList$.on('click touchstart', '.script-list > ul > li', function (e) {
         if(this === e.target) {
             // click on menu item
             $(e.target).toggleClass('expanded');
@@ -72,12 +74,14 @@ export function initPgList() {
                 $('.script-list').addClass('hidden');
             });
         }
+        e.preventDefault();
     });
-    $('#btn_preview_select').click(function () {
+    $('#btn_preview_select').on('click touchstart', function (e) {
         var pg = window._preview_editor.getValue().trim();
         if(pg) {
             window._editor.setValue(pg, 1);
             floatingBtn$.fireClick();
         }
+        e.preventDefault();
     });
 }
