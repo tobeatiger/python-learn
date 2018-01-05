@@ -1,42 +1,70 @@
 import $ from 'jquery';
 import { draggableButton } from './draggable-button';
+import { spring, tween, styler, value } from 'popmotion';
+
+const togglePGList = (pgList$, rel$, moveY) => {
+    if(!togglePGList._styler) {
+        togglePGList._styler = styler(pgList$.get(0));
+        togglePGList._action = value({}, (v) => {
+            togglePGList._styler.set({
+                'bottom': v.bottom+'px', 'right': v.right+'px',
+                'width': v.width+'px', 'height': v.height+'px'
+            });
+        });
+    }
+    let fullScreenSet = { bottom: 0, right: 0,
+        width: $(window).width(), height: $(window).height() };
+    let relW = parseInt(rel$.css('width'), 10), relH = parseInt(rel$.css('height'), 10);
+    let minScreenSet = {
+        bottom: parseInt(rel$.css('bottom'), 10) + relH/2 - moveY,
+        right: parseInt(rel$.css('right'), 10) + relW/2,
+        width: 0, height: 0
+    };
+    if(pgList$.hasClass('show')) {
+        pgList$.find('.content').hide();
+        spring({
+            stiffness: 1500, damping: 60, mass: 1,
+            from: fullScreenSet, to: minScreenSet
+        }).start(togglePGList._action);
+    } else {
+        if(Math.min($(window).width(), $(window).height()) > 400) {
+            pgList$.find('.content').fadeIn(50);
+            tween({
+                from: minScreenSet, to: fullScreenSet, duration: 50
+            }).start(togglePGList._action);
+        } else {
+            setTimeout(() => {pgList$.find('.content').show();}, 150);
+            spring({
+                stiffness: 3000, damping: 50, mass: 1.2, velocity: 100,
+                from: minScreenSet, to: fullScreenSet
+            }).start(togglePGList._action);
+        }
+    }
+    pgList$.toggleClass('show');
+    $(window).off('resize').on('resize', () => {
+        if(pgList$.hasClass('show')) {
+            togglePGList._styler.set({
+                'width': $(window).width()+'px',
+                'height': $(window).height()+'px'
+            });
+        }
+    });
+};
 
 export function initPgList() {
     var pgList$ = $('body').find('.programList');
+    var moveY = 0;
     var floatingBtn$ = draggableButton({
         target: $('#root'),
         btnName: 'floating_controller',
         onClick: function () {
-            pgList$.find('.content').hide();
-            pgList$.one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend",
-                function() {
-                    if(pgList$.hasClass('show')) {
-                        pgList$.find('.content').show();
-                    }
-                }
-            );
-            setTimeout(function () {
-                if(pgList$.hasClass('show')) {
-                    pgList$.find('.content').show();
-                }
-            }, 200);
-            pgList$.toggleClass('show');
-            if(pgList$.hasClass('show')) {
-                pgList$.css('bottom', '0').css('right', '0');
-                //pgList$.find('.content').show();
-            } else {
-                pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
-                //pgList$.find('.content').hide();
-            }
-            $(this).toggleClass('icon-more').toggleClass('icon-close');
+            togglePGList(pgList$, floatingBtn$, moveY);
+            floatingBtn$.toggleClass('icon-more').toggleClass('icon-close');
         },
-        dragEnded: function (bottom) {
-            if(!pgList$.hasClass('show')) {
-                $('body').find('.programList').css('bottom', parseInt(bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
-            }
+        dragging: function (y) {
+            moveY = y;
         }
     });
-    pgList$.css('bottom', parseInt(floatingBtn$[0].style.bottom)+18).css('right', parseInt(floatingBtn$.css('right'))+15);
 
     pgList$.find('.nav-button').on('click touchstart', function (e) {
         $(this).parent().toggleClass('hidden');

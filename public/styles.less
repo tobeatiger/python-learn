@@ -8,7 +8,7 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 body * {
@@ -289,29 +289,9 @@ body {
     position: absolute;
     height: 0;
     width: 0;
-    /*top: -50px;*/
-    bottom: 1000px;
-    right: 0;
-    background-color: #666;
+    background-color: #333;
     z-index: 2;
-    /*-webkit-transition: right 0.2s ease-out, top 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;*/
-    /*-moz-transition: right 0.2s ease-out, top 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;*/
-    /*-ms-transition: right 0.2s ease-out, top 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;*/
-    /*-o-transition: right 0.2s ease-out, top 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;*/
-    /*transition: right 0.2s ease-out, top 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;*/
-    -webkit-transition: right 0.2s ease-out, bottom 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-    -moz-transition: right 0.2s ease-out, bottom 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-    -ms-transition: right 0.2s ease-out, bottom 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-    -o-transition: right 0.2s ease-out, bottom 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-    transition: right 0.2s ease-out, bottom 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-    border-radius: 10px;
     &.show {
-        height: 100%;
-        width: 100%;
-        /*top: 0;*/
-        bottom: 0;
-        right: 0;
-        /*opacity: 0.9;*/
         display: -webkit-flex;
         display: -webkit-box;
         display: flex;
@@ -348,14 +328,13 @@ body {
                 border-radius: 0 10px 10px 0;
                 left: -8px;
                 top: -14px;
-                /*opacity: 0.75;*/
                 padding: 14px 0;
                 z-index: 1;
-                /*-webkit-box-shadow: 4px 0 10px #555;*/
-                /*-moz-box-shadow: 4px 0 10px #555;*/
-                /*box-shadow: 4px 0 6px #555;*/
                 &.hidden {
                     width: 0;
+                    ul {
+                        display: none;
+                    }
                 }
                 .nav-button {
                     width: 18px;
@@ -500,20 +479,21 @@ body {
                     width: 100%;
                     z-index: 0;
                 }
-                #btn_preview_select {
-                    position: fixed;
-                    bottom: 7px;
-                    height: 40px;
-                    width: calc(~"100%" - 34px);
-                    width: -webkit-calc(~"100%" - 34px);
-                    width: -moz-calc(~"100%" - 34px);
-                    border: none;
-                    background-color: darkgreen;
-                    color: #fff;
-                    font-size: 17px;
-                    line-height: 40px;
-                    border-radius: 3px;
-                }
+            }
+            #btn_preview_select {
+                position: absolute;
+                bottom: 7px;
+                height: 40px;
+                left: 16px;
+                width: calc(~"100%" - 18px);
+                width: -webkit-calc(~"100%" - 18px);
+                width: -moz-calc(~"100%" - 18px);
+                border: none;
+                background-color: darkgreen;
+                color: #fff;
+                font-size: 17px;
+                line-height: 40px;
+                border-radius: 3px;
             }
         }
     }

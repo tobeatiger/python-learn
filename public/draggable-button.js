@@ -8,7 +8,7 @@ export function draggableButton (params) {
         icon: 'icon-more',
         bottom: 90,
         onClick: function () {console.log('default click')},
-        dragEnded: function () {}
+        dragging: function () {}
     }, params ? params : {});
 
     let btn$ = _settings.target.find('.draggable-btn');
@@ -36,6 +36,7 @@ export function draggableButton (params) {
             xy.y = 0;
         }
         divStyler.set({y: xy.y});
+        _settings.dragging.bind(btn$)(xy.y);
     });
     listen(btn, 'mousedown touchstart').start(
         (e) => {
