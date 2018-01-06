@@ -5,7 +5,13 @@ import { spring, tween, styler, value } from 'popmotion';
 const togglePGList = (pgList$, rel$, moveY) => {
     if(!togglePGList._styler) {
         togglePGList._styler = styler(pgList$.get(0));
+        togglePGList.__cutFrameCounter = 0;
+        togglePGList.__cutFrame = false;
         togglePGList._action = value({}, (v) => {
+            togglePGList.__cutFrameCounter++;
+            if(togglePGList.__cutFrame && togglePGList.__cutFrameCounter % 4 != 0) {
+                return;
+            }
             togglePGList._styler.set({
                 'bottom': v.bottom+'px', 'right': v.right+'px',
                 'width': v.width+'px', 'height': v.height+'px'
@@ -22,6 +28,7 @@ const togglePGList = (pgList$, rel$, moveY) => {
     };
     if(pgList$.hasClass('show')) {
         pgList$.find('.content').hide();
+        togglePGList.__cutFrame = false;
         spring({
             stiffness: 1500, damping: 60, mass: 1,
             from: fullScreenSet, to: minScreenSet
@@ -29,13 +36,16 @@ const togglePGList = (pgList$, rel$, moveY) => {
     } else {
         if(Math.min($(window).width(), $(window).height()) > 400) {
             pgList$.find('.content').fadeIn(50);
+            togglePGList.__cutFrame = false;
             tween({
                 from: minScreenSet, to: fullScreenSet, duration: 50
             }).start(togglePGList._action);
         } else {
             setTimeout(() => {pgList$.find('.content').show();}, 150);
+            togglePGList.__cutFrameCounter = 0;
+            togglePGList.__cutFrame = true;
             spring({
-                stiffness: 3000, damping: 50, mass: 1.2, velocity: 100,
+                stiffness: 3000, damping: 50, mass: 1.2, // velocity: 100,
                 from: minScreenSet, to: fullScreenSet
             }).start(togglePGList._action);
         }
