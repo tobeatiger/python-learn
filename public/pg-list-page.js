@@ -9,7 +9,7 @@ const togglePGList = (pgList$, rel$, moveY) => {
         togglePGList.__cutFrame = false;
         togglePGList._action = value({}, (v) => {
             togglePGList.__cutFrameCounter++;
-            if(togglePGList.__cutFrame && togglePGList.__cutFrameCounter % 4 != 0) {
+            if(togglePGList.__cutFrame && togglePGList.__cutFrameCounter > 4 && togglePGList.__cutFrameCounter % 4 !== 0) {
                 return;
             }
             togglePGList._styler.set({
