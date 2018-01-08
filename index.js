@@ -179,6 +179,9 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname+'/public/index.html');
 });
 
+var programs = require('./routers/programs');
+app.use('/progs', programs);
+
 function initProcess (socket, cb) {
     socket.__python_dialog = new PythonDialog();
     setTimeout(function() {

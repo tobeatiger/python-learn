@@ -102,11 +102,17 @@ export function initPgList() {
     pgList$.on('click touchstart', '.script-list > ul > li', function (e) {
         if(this === e.target) {
             // click on menu item
+            $(this).parent().find('> li').each(function () {
+                if(this !== e.target) {
+                    $(this).removeClass('expanded')
+                }
+            });
             $(e.target).toggleClass('expanded');
         } else {
+            // click on program item
             $('#pg-title').text('程序学习 - ' + $(e.target).text());
             $.ajax({
-                url: './programs/' + $(e.target).data('pg')
+                url: $(e.target).data('url')
             }).done(function (pg) {
                 window._preview_editor.setValue(pg, -1);
                 $('.script-list').addClass('hidden');
