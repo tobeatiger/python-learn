@@ -6,15 +6,20 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --env=prod ./public/app.js ./public/bundle.js",
-    "dev": "webpack --watch ./public/app.js ./public/bundle.js"
+    "dev": "webpack --watch ./public/app.js ./public/bundle.js",
+    "build:maint": "webpack --env=prod ./public/app-maint.js ./public/bundle-maint.js",
+    "dev:maint": "webpack --watch ./public/app-maint.js ./public/bundle-maint.js"
   },
   "author": "HBY",
   "license": "ISC",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "jade": "^1.11.0",
     "jquery": "^3.2.1",
+    "mongoose": "^4.13.9",
     "pidusage": "^1.2.0",
     "popmotion": "^8.1.6",
     "python-shell": "^0.4.0",

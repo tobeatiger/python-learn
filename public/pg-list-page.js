@@ -61,6 +61,24 @@ const togglePGList = (pgList$, rel$, moveY) => {
     });
 };
 
+var pgList;
+const retrievePGs = () => {
+    $.ajax({
+        url: '/progs/list'
+    }).done(function (pgs) {
+        pgList = pgs;
+        var tutorial_ul = $('#tutorial-list').empty();
+        var basic_libs_ul = $('#basic-libs-list').empty();
+        $.each(pgList, function(idx, pg) {
+            if(pg.category == 'tutorial') {
+                tutorial_ul.append($('<li>' + pg.pgDesc + '</li>').data('pg', pg));
+            } else {
+                basic_libs_ul.append($('<li>' + pg.pgDesc + '</li>').data('pg', pg));
+            }
+        });
+    });
+};
+
 export function initPgList() {
     var pgList$ = $('body').find('.programList');
     var moveY = 0;
@@ -68,6 +86,10 @@ export function initPgList() {
         target: $('#root'),
         btnName: 'floating_controller',
         onClick: function () {
+            if(!pgList) {
+                pgList = true;
+                retrievePGs();
+            }
             togglePGList(pgList$, floatingBtn$, moveY);
             floatingBtn$.toggleClass('icon-more').toggleClass('icon-close');
         },
@@ -111,12 +133,17 @@ export function initPgList() {
         } else {
             // click on program item
             $('#pg-title').text('程序学习 - ' + $(e.target).text());
-            $.ajax({
-                url: $(e.target).data('url')
-            }).done(function (pg) {
-                window._preview_editor.setValue(pg, -1);
+            if($(e.target).data('pg')) {
+                window._preview_editor.setValue($(e.target).data('pg').pgValue, -1);
                 $('.script-list').addClass('hidden');
-            });
+            } else {
+                $.ajax({
+                    url: $(e.target).data('url')
+                }).done(function (pg) {
+                    window._preview_editor.setValue(pg, -1);
+                    $('.script-list').addClass('hidden');
+                });
+            }
         }
         e.preventDefault();
     });

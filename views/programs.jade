@@ -1,0 +1,120 @@
+doctype html
+html
+    head
+        title Python Sample Programs Maint
+        meta(charset="utf-8")
+        meta(http-equiv="x-ua-compatible" content="IE=9; IE=8; IE=7; IE=EDGE")
+        meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no")
+        style.
+            * {
+                margin: 0;
+                padding: 0;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+            body { padding: 0 5px; }
+            body h1 { text-align: center; margin: 10px 0; }
+            .dialog .cover {
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+                opacity: 0.6;
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+            }
+            .dialog .content {
+                position: absolute;
+                top: 50px;
+                left: calc(50% - 333px);
+                width: 666px;
+                height: 533px;
+                background-color: #f8f8f8;
+                -webkit-border-radius: 6px;
+                -moz-border-radius: 6px;
+                border-radius: 6px;
+            }
+            .dialog .content textarea {
+                height: 200px;
+                overflow-y: auto;
+                resize: none;
+                font-size: small;
+            }
+            .form-group:first-child {
+                border-bottom: 1px solid darkblue;
+            }
+            .form-check-inline label span {
+                color: blue;
+                position: relative;
+                top: -2px;
+            }
+            #pg_table {
+                padding: 8px;
+                border: 1px solid #ddd;
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                border-radius: 5px;
+                margin-bottom: 8px;
+                min-width: 800px;
+            }
+            .g-container {
+                display: grid;
+                line-height: 44px;
+            }
+            .headerContainer {
+                background-color: #333;
+                color: #fff;
+                font-weight: bold;;
+            }
+            .g-item {
+                line-height: 25px;
+                padding: 12px;
+                background-color: rgba(0, 0, 0, .03);
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .bodyContainer .g-item.ttr {
+                color: darkblue;
+            }
+
+            .bodyContainer .g-item.bsl {
+                color: orangered;
+            }
+            .bodyContainer .g-item.odd {
+                background-color: rgba(0, 0, 0, .08);
+            }
+        link(rel="stylesheet" href="./css/bootstrap.min.css")
+    body
+        h1 Program Maintainance
+        div(id="pg_table")
+            div(class="g-container headerContainer")
+            div(class="g-container bodyContainer")
+        button(id="btn_add" class="btn btn-primary btn-block") Add
+        div(class="dialog" style="display: none")
+            div(class="cover")
+            div(class="content")
+                form(style="padding:15px 20px;" id="pg_form")
+                    div(class="form-group" style="text-align:center;padding-bottom:5px;")
+                        div(class="form-check form-check-inline")
+                            label(class="form-check-label")
+                                input(class="form-check-input" type="radio" name="category" id="type1" value="tutorial" checked)
+                                span tutorial
+                        div(class="form-check form-check-inline")
+                            label(class="form-check-label")
+                                input(class="form-check-input" type="radio" name="category" id="type2" value="basic-libs" checked)
+                                span basic-libs
+                    div(class="form-group")
+                        label(for="pgId") pgId
+                        input(class="form-control" type="text" id="pgId" placeholder="Endter pgId")
+                    div(class="form-group")
+                        label(for="pgDesc") pgDesc
+                        input(class="form-control" type="text" id="pgDesc" placeholder="Endter pgDesc")
+                    div(class="form-group")
+                        label(for="pgValue") pgValue
+                        textarea(class="form-control" id="pgValue" placeholder="Endter pgValue")
+                button(class="btn btn-primary insert" style="position:absolute;bottom:15px;right:104px;width:140px;") Insert
+                button(class="btn btn-outline-primary cancel" style="position:absolute;bottom:15px;right:20px;") Cancel
+        script(src="./bundle-maint.js")
