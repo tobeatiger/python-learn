@@ -35,7 +35,7 @@ var Program = mongoose.model('Program', {
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
-    //cryptPassword('******', function (err, hash) {
+    //cryptPassword('**********', function (err, hash) {
     //    var jim = new UserDocuments({
     //        userName: 'admin',
     //        userId: 'admin',
@@ -118,7 +118,7 @@ router.post('/', function(req, res, next) {
                             if(match) {
                                 user.userPassword = undefined; //never expose the user password, even it's encrypt
                                 req.session.user = user;
-                                res.redirect('/progs');
+                                res.redirect('./progs');
                             } else {
                                 res.status('403');
                                 res.render('login-poc.jade', {message: 'Wrong password!'})

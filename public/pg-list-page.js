@@ -64,7 +64,7 @@ const togglePGList = (pgList$, rel$, moveY) => {
 var pgList;
 const retrievePGs = () => {
     $.ajax({
-        url: '/progs/list'
+        url: './progs/list'
     }).done(function (pgs) {
         pgList = pgs;
         var tutorial_ul = $('#tutorial-list').empty();

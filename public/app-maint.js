@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { styler, listen, pointer, value } from 'popmotion';
 
 $.ajax({
-    url: '/progs/list'
+    url: './progs/list'
 }).done(function (pgs) {
     var bigCont$ = $('#pg_table');
     var headerCont$ = bigCont$.find('.headerContainer');
@@ -30,7 +30,7 @@ $.ajax({
                     cell$.append(
                         '<button style="float:left;padding:1px 6px;" class="btn btn-outline-danger btn-sm deleteRow">✖</button>' +
                         '<button style="float:right;padding:1px 7px;" class="btn btn-outline-primary btn-sm updateRow">U</button>'
-                    ).attr('data-id', value).data('object', obj);
+                    ).addClass('idCell').attr('data-id', value).data('object', obj);
                 }
             }
         });
@@ -48,7 +48,7 @@ $('#btn_add').click(function () {
 
 $('.dialog button.insert').click(function() {
     $.ajax({
-        url: '/progs/update',
+        url: './progs/update',
         method: 'POST',
         data: function () {
             var data = {};
@@ -81,7 +81,7 @@ $('#pg_table').on('click', 'button.deleteRow', function (e) {
     var _id = $(e.target).closest('.g-item').attr('data-id');
     if(confirm('Are you sure to delete record "' + _id + '"?')) {
         $.ajax({
-            url: '/progs/' + _id,
+            url: './progs/' + _id,
             method: 'DELETE'
         }).done(function () {
             location.reload();
@@ -99,6 +99,11 @@ $('#pg_table').on('click', 'button.updateRow', function (e) {
     dialog$.find('button.insert').text('Update');
 });
 
+$('#pg_table .bodyContainer').on('dblclick', '.g-item', function (e) {
+    var cell$ = $(this).hasClass('idCell') ? $(this) : $(this).prevAll('.idCell:first');
+    cell$.find('button.updateRow').click();
+});
+
 const content = $('.dialog .content').get(0);
 const divStyler = styler(content);
 const contentXY = value({x:0, y:0}, (xy) => {
@@ -106,7 +111,7 @@ const contentXY = value({x:0, y:0}, (xy) => {
 });
 listen(content, 'mousedown touchstart').start(
     (e) => {
-        if(!$(e.target).hasClass('btn')) {
+        if(!$(e.target).hasClass('btn') && !$(e.target).is('textarea,input')) {
             pointer(contentXY.get()).start(contentXY);
         }
     }
