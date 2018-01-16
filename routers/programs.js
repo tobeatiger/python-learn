@@ -30,7 +30,8 @@ var Program = mongoose.model('Program', {
     category: String,
     pgId: String,
     pgDesc: String,
-    pgValue: String
+    pgValue: String,
+    sortKey: { type: String, default: '1' }
 });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -132,7 +133,7 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/list', function (req, res) {
-    Program.find().sort([['category', -1]]).exec(function(err, pgs) {
+    Program.find().sort([['category', -1],['sortKey', 1]]).exec(function(err, pgs) {
         if(err) {
             console.log(err);
             res.status(500).send('failed');

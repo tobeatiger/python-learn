@@ -30,7 +30,7 @@ html
                 top: 50px;
                 left: calc(50% - 333px);
                 width: 666px;
-                height: 533px;
+                height: 590px;
                 background-color: #f8f8f8;
                 -webkit-border-radius: 6px;
                 -moz-border-radius: 6px;
@@ -120,6 +120,9 @@ html
                     div(class="form-group")
                         label(for="pgValue") pgValue
                         textarea(class="form-control" id="pgValue" placeholder="Endter pgValue")
+                    div(class="form-group")
+                        label(for="sortKey") sortKey
+                        input(class="form-control" type="text" id="sortKey" placeholder="Endter sortKey" style="display:inline;width:565px;margin-left:8px;")
                 button(class="btn btn-primary insert" style="position:absolute;bottom:15px;right:104px;width:140px;") Insert
                 button(class="btn btn-outline-primary cancel" style="position:absolute;bottom:15px;right:20px;") Cancel
         script(src="./bundle-maint.js")

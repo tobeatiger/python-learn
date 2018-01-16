@@ -14,8 +14,11 @@ function preFormat (code) {
                     currLine.trim() === ''  // currLine is empty line
                     &&
                     (
-                        nextLine.trim() === ''   // nextLine is empty line
-                        || /^\s/.test(nextLine)  // nextLine is indented, in indentation context
+                        (
+                            nextLine.trim() === ''   // nextLine is empty line
+                            || /^\s/.test(nextLine)  // nextLine is indented, in indentation context
+                        )
+                        || /^(elif|else)/.test((nextLine||'').trim()) // nextLine is sub if statement
                     )
                 )
             ) {
@@ -27,8 +30,9 @@ function preFormat (code) {
                 /^\s/.test(currLine)           // currLine is indented
                 && currLine.trim() !== ''      // currLine is not empty spaces
                 && (
-                    nextLine === undefined                            // no nextLine (end of program)
-                    || (!/^\s/.test(nextLine) && nextLine !== '')     // nextLine is NOT indented
+                    !/^(elif|else)/.test((nextLine||'').trim()) &&
+                    (nextLine === undefined                            // no nextLine (end of program)
+                    || (!/^\s/.test(nextLine) && nextLine !== ''))     // nextLine is NOT indented
                 )
             ) {
                 rs.push('');

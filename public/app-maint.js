@@ -16,12 +16,16 @@ $.ajax({
         }
         var categoryClass = (obj['category'] == 'tutorial') ? 'ttr' : 'bsl';
         $.each(obj, function(key, value) {
-            if(key !== '__v') {
+            if(key !== '__v' && key !== 'sortKey') {
                 if(!cols[key]) {
                     headerCont$.append('<div class="g-item">' + (key == '_id' ? '' : key) + '</div>');
                     cols[key] = key;
                 }
-                var cell$ = $('<div class="g-item ' + categoryClass + '">' + (key == '_id' ? '' : value) + '</div>');
+                var cellVal = (key == '_id' ? '' : value);
+                if(key == 'category') {
+                    cellVal += ('<span style="padding-left:8px;color:blue;">(' + obj.sortKey + ')</span>');
+                }
+                var cell$ = $('<div class="g-item ' + categoryClass + '">' + cellVal + '</div>');
                 if(odd) {
                     cell$.addClass('odd');
                 }
@@ -36,7 +40,7 @@ $.ajax({
         });
         odd = !odd;
     });
-    bigCont$.find('.g-container').css('grid-template-columns', '80px repeat(' + (colCount - 3) + ', 1fr) 2.5fr');
+    bigCont$.find('.g-container').css('grid-template-columns', '80px repeat(' + (colCount - 4) + ', 1fr) 2.5fr');
 });
 
 $('#btn_add').click(function () {
@@ -96,6 +100,7 @@ $('#pg_table').on('click', 'button.updateRow', function (e) {
     dialog$.find('#pgId').val(obj.pgId);
     dialog$.find('#pgDesc').val(obj.pgDesc);
     dialog$.find('#pgValue').val(obj.pgValue);
+    dialog$.find('#sortKey').val(obj.sortKey);
     dialog$.find('button.insert').text('Update');
 });
 
