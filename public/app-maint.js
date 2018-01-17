@@ -41,6 +41,7 @@ $.ajax({
         odd = !odd;
     });
     bigCont$.find('.g-container').css('grid-template-columns', '80px repeat(' + (colCount - 4) + ', 1fr) 2.5fr');
+    bodyCont$.animate({ scrollTop: bodyCont$.height() }, 300);
 });
 
 $('#btn_add').click(function () {
