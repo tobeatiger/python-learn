@@ -121,7 +121,8 @@ export function initPgList() {
         pgList$.find('.nav-button').parent().addClass('hidden');
         e.preventDefault();
     }).find('.ace_text-input').prop('disabled', true);
-    pgList$.on('click touchstart', '.script-list > ul > li', function (e) {
+    //pgList$.on('click touchstart', '.script-list > ul > li', function (e) {
+    pgList$.on('click', '.script-list > ul > li', function (e) {
         if(this === e.target) {
             // click on menu item
             $(this).parent().find('> li').each(function () {
@@ -145,7 +146,7 @@ export function initPgList() {
                 });
             }
         }
-        e.preventDefault();
+        // e.preventDefault();
     });
     $('#btn_preview_select').on('click touchstart', function (e) {
         var pg = window._preview_editor.getValue().trim();

@@ -31,7 +31,7 @@ var Program = mongoose.model('Program', {
     pgId: String,
     pgDesc: String,
     pgValue: String,
-    sortKey: { type: String, default: '1' }
+    sortKey: { type: Number, default: 1 }
 });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
