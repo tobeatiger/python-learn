@@ -194,8 +194,10 @@ function initProcess (socket, cb) {
     }, 200)
 }
 
-io.on('connection', function(socket){
-    console.log('a user connected');
+io.on('connection', function(socket) {
+    console.log('==> a user connected');
+    console.log('==> Client IP: ' + socket.handshake.headers['client-ip']);
+    console.log('==> Browser: ' + socket.handshake.headers['user-agent']);
     socket.on('init', function() {
         initProcess(socket);
     });
@@ -251,7 +253,7 @@ io.on('connection', function(socket){
         }
     });
     socket.on('disconnect', function() {
-        console.log('user disconnected');
+        console.log('--> user disconnected');
         if(socket.__python_dialog && socket.__python_dialog.childProcess) {
             try {
                 socket.__python_dialog.childProcess.stdin.write('\n');
