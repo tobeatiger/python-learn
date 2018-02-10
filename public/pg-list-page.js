@@ -76,6 +76,9 @@ const retrievePGs = () => {
                 basic_libs_ul.append($('<li>' + pg.pgDesc + '</li>').data('pg', pg));
             }
         });
+        if(basic_libs_ul.find('li').length == 0) {
+            basic_libs_ul.append($('<li>To be imported...</li>').data('pg', { pgValue: 'print "TODO..."' }));
+        }
     });
 };
 
@@ -122,7 +125,31 @@ export function initPgList() {
         e.preventDefault();
     }).find('.ace_text-input').prop('disabled', true);
     //pgList$.on('click touchstart', '.script-list > ul > li', function (e) {
-    pgList$.on('click', '.script-list > ul > li', function (e) {
+    pgList$.on('touchstart', '.script-list > ul > li', function (e) {
+        pgList$._startY = e.originalEvent.changedTouches[0].clientY;
+    });
+    pgList$.on('click touchend', '.script-list > ul > li', function (e) {
+
+        if(e.type != 'click') {
+            e.preventDefault();
+            if(Math.abs(e.originalEvent.changedTouches[0].clientY - pgList$._startY) > 4) {
+                return;
+            }
+        }
+
+        //if(pgList$._skipClick) {
+        //    pgList$._skipClick = false;
+        //    return;
+        //}
+        //if(e.type != 'click') {
+        //    pgList$._skipClick = true;
+        //} else {
+        //    if(pgList$._skipClick) {
+        //        pgList$._skipClick = false;
+        //        return;
+        //    }
+        //}
+
         if(this === e.target) {
             // click on menu item
             $(this).parent().find('> li').each(function () {

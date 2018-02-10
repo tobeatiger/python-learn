@@ -1,3 +1,4 @@
+require('exit-on-epipe');
 var express = require('express');
 var app = express();
 app.set('views', './views');

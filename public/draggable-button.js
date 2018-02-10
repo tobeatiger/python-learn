@@ -42,7 +42,11 @@ export function draggableButton (params) {
         (e) => {
             e.preventDefault();
             btn._startDragXY = btnXY.get();
-            pointer(btnXY.get()).start(btnXY);
+            // disable drag and drop in iPad (there's bug)
+            var is_iPad = navigator.userAgent.match(/iPad/i) != null;
+            if(!is_iPad) {
+                pointer(btnXY.get()).start(btnXY);
+            }
         }
     );
     listen(document, 'mouseup touchend').start(
@@ -53,7 +57,7 @@ export function draggableButton (params) {
 
     listen(btn, 'mouseup touchend').start(() => {
         let currentXY = btnXY.get();
-        if(btn._startDragXY.x == currentXY.x && Math.abs(btn._startDragXY.y - currentXY.y) <= 3) {
+        if(btn._startDragXY.x == currentXY.x && Math.abs(btn._startDragXY.y - currentXY.y) <= 4) {
             _settings.onClick.bind(btn$)();
         }
     });

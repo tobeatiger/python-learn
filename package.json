@@ -15,6 +15,7 @@
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "cookie-parser": "^1.4.3",
+    "exit-on-epipe": "^1.0.1",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "jade": "^1.11.0",
